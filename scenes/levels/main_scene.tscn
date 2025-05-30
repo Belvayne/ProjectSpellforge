@@ -1,0 +1,25 @@
+[gd_scene load_steps=7 format=3 uid="uid://b2qqfffl5plfy"]
+
+[ext_resource type="PackedScene" uid="uid://ce42q2vwftigb" path="res://scenes/levels/test_map.tscn" id="1_v11gt"]
+[ext_resource type="PackedScene" uid="uid://kuxhbg7smc3b" path="res://scenes/player/player.tscn" id="2_o7qqs"]
+[ext_resource type="PackedScene" uid="uid://dpeogmdal2gq" path="res://scenes/ui/hud.tscn" id="3_geww2"]
+[ext_resource type="PackedScene" uid="uid://ber1gxxuhf5e4" path="res://scenes/ui/pause_menu.tscn" id="4_b62b3"]
+[ext_resource type="PackedScene" uid="uid://b2pt2cneu3kcj" path="res://scenes/ui/spellbook.tscn" id="5_883wu"]
+[ext_resource type="Script" path="res://scripts/core/game_manager.gd" id="10_l4wff"]
+
+[node name="MainScene" type="Node3D"]
+
+[node name="TestMap" parent="." instance=ExtResource("1_v11gt")]
+
+[node name="Player" parent="." groups=["player"] instance=ExtResource("2_o7qqs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.52507, 0)
+
+[node name="HUD" parent="." instance=ExtResource("3_geww2")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("4_b62b3")]
+visible = false
+
+[node name="Spellbook" parent="." instance=ExtResource("5_883wu")]
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("10_l4wff")

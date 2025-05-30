@@ -1,25 +1,24 @@
-[gd_scene load_steps=5 format=3 uid="uid://cfjb465xe63u3"]
+[gd_scene load_steps=5 format=3 uid="uid://dopmsnl4br8sp"]
 
-[ext_resource type="Script" path="res://playerMovement.gd" id="1_me4ld"]
-[ext_resource type="Script" path="res://player_stats.gd" id="2_k3684"]
+[ext_resource type="Script" path="res://player.gd" id="1_j2cbk"]
+[ext_resource type="Script" path="res://player_stats.gd" id="2_4al0c"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_v81oj"]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_on33w"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_20h0k"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_wy1dp"]
 
 [node name="Player" type="CharacterBody3D"]
-script = ExtResource("1_me4ld")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("CapsuleMesh_v81oj")
+script = ExtResource("1_j2cbk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("CapsuleShape3D_20h0k")
+shape = SubResource("CapsuleShape3D_on33w")
 
-[node name="SpringArm3D" type="SpringArm3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.676221, 1.14901, 1.54681)
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_wy1dp")
 
-[node name="Camera3D" type="Camera3D" parent="SpringArm3D"]
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0.820925, 1.50028, 2.61783)
+current = true
 
 [node name="PlayerStats" type="Node" parent="."]
-script = ExtResource("2_k3684")
+script = ExtResource("2_4al0c")

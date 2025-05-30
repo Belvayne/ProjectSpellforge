@@ -1,0 +1,62 @@
+[gd_scene load_steps=9 format=3 uid="uid://ce42q2vwftigb"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_n3qbv"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6ddy5"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_m562i"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c25kk"]
+metallic = 1.0
+metallic_texture_channel = 4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_n00i1"]
+
+[sub_resource type="Gradient" id="Gradient_k5omm"]
+colors = PackedColorArray(0, 1, 0, 1, 0, 1, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_6r0us"]
+gradient = SubResource("Gradient_k5omm")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hm8et"]
+metallic = 1.0
+metallic_specular = 1.0
+metallic_texture = SubResource("GradientTexture1D_6r0us")
+metallic_texture_channel = 1
+
+[node name="TestMap" type="Node3D"]
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+transform = Transform3D(20, 0, 0, 0, 1, 0, 0, 0, 20, 0, 0, 0)
+mesh = SubResource("BoxMesh_n3qbv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+transform = Transform3D(20, 0, 0, 0, 1, 0, 0, 0, 20, 0, 0, 0)
+shape = SubResource("BoxShape3D_6ddy5")
+
+[node name="Wall" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 3, -5.85509, 0.386547, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Wall"]
+mesh = SubResource("BoxMesh_m562i")
+surface_material_override/0 = SubResource("StandardMaterial3D_c25kk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall"]
+shape = SubResource("BoxShape3D_n00i1")
+
+[node name="Wall2" type="StaticBody3D" parent="."]
+transform = Transform3D(2, 0, 0, 0, 3, 0, 0, 0, 4, -5.77191, 0.643171, -3.38033)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Wall2"]
+mesh = SubResource("BoxMesh_m562i")
+surface_material_override/0 = SubResource("StandardMaterial3D_hm8et")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall2"]
+shape = SubResource("BoxShape3D_n00i1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.078459, 0.657967, 0.748948, -1.31355e-07, -0.751264, 0.660002, 0.996917, 0.051783, 0.0589435, -3.92769, 21.6817, -13.4072)
+shadow_enabled = true
