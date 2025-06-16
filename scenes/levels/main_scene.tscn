@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://ber1gxxuhf5e4" path="res://scenes/ui/pause_menu.tscn" id="4_b62b3"]
 [ext_resource type="PackedScene" uid="uid://b2pt2cneu3kcj" path="res://scenes/ui/spellbook.tscn" id="5_883wu"]
 [ext_resource type="PackedScene" uid="uid://c8yvxqnxqyvnx" path="res://scenes/enemies/dummy.tscn" id="7_qcoxd"]
-[ext_resource type="Script" path="res://scripts/core/game_manager.gd" id="10_l4wff"]
+[ext_resource type="Script" uid="uid://d0po8py6xl0a5" path="res://scripts/core/game_manager.gd" id="10_l4wff"]
 
 [node name="MainScene" type="Node3D"]
 

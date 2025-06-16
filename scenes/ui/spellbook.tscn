@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://b2pt2cneu3kcj"]
 
-[ext_resource type="Script" path="res://scripts/ui/spellbook.gd" id="1_c84j8"]
+[ext_resource type="Script" uid="uid://ba3nob5d4jje2" path="res://scripts/ui/spellbook.gd" id="1_c84j8"]
 
 [node name="Spellbook" type="Control"]
 process_mode = 3

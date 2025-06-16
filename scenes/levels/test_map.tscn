@@ -58,5 +58,6 @@ surface_material_override/0 = SubResource("StandardMaterial3D_hm8et")
 shape = SubResource("BoxShape3D_n00i1")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.078459, 0.657967, 0.748948, -1.31355e-07, -0.751264, 0.660002, 0.996917, 0.051783, 0.0589435, -3.92769, 21.6817, -13.4072)
+transform = Transform3D(0.378886, 0.899978, -0.215606, -0.408801, 0.371774, 0.833466, 0.830258, -0.227648, 0.508772, -3.92769, 21.6817, -13.4072)
+light_color = Color(1, 1, 0.894118, 1)
 shadow_enabled = true

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://w2bneylglho"]
 
-[ext_resource type="Script" path="res://scripts/spells/meditate_spell.gd" id="1_medit"]
+[ext_resource type="Script" uid="uid://cjt3bqtxkt3vb" path="res://scripts/spells/meditate_spell.gd" id="1_medit"]
 
 [node name="MeditateSpell" type="Node3D"]
 script = ExtResource("1_medit")

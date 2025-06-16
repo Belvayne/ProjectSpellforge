@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cw0cmdda1w2hh"]
 
-[ext_resource type="Script" path="res://scripts/spells/ground_target_spell.gd" id="1_e22ou"]
+[ext_resource type="Script" uid="uid://67wdihx1mmsl" path="res://scripts/spells/ground_target_spell.gd" id="1_e22ou"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_533cm"]
 albedo_color = Color(0.486275, 0, 0, 1)

@@ -26,13 +26,13 @@ var dodge_direction = Vector3.ZERO
 @onready var animation_player = $CharacterModel/AnimationPlayer
 
 # Animation states
-enum AnimationState { IDLE, WALK, RUN, JUMP, DODGE }
+enum AnimationState { IDLE, WALK, RUN, JUMP_START, JUMP_END, DODGE }
 var current_animation_state = AnimationState.IDLE
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	# Start with idle animation
-	play_animation("Idle")
+	play_animation("Anim/Idle")
 
 func _input(event):
 	# Mouse Look
@@ -50,15 +50,15 @@ func _physics_process(delta):
 	# Apply gravity
 	if not is_on_floor():
 		velocity.y -= gravity * delta
-		if current_animation_state != AnimationState.JUMP:
-			play_animation("Jump")
-			current_animation_state = AnimationState.JUMP
+		if current_animation_state != AnimationState.JUMP_START and current_animation_state != AnimationState.JUMP_END:
+			play_animation("Anim/Jump_Start")
+			current_animation_state = AnimationState.JUMP_START
 
 	# Handle Jumping
 	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
 		velocity.y = jump_velocity
-		play_animation("Jump")
-		current_animation_state = AnimationState.JUMP
+		play_animation("Anim/Jump_Start")
+		current_animation_state = AnimationState.JUMP_START
 
 	# Handle Sprinting
 	var current_speed = speed
@@ -67,7 +67,7 @@ func _physics_process(delta):
 		player_stats.set_sprinting(true)
 		player_stats.use_stamina(10 * delta)
 		if current_animation_state != AnimationState.RUN:
-			play_animation("Run")
+			play_animation("Anim/Run")
 			current_animation_state = AnimationState.RUN
 	else:
 		player_stats.set_sprinting(false)
@@ -87,13 +87,13 @@ func _physics_process(delta):
 			
 			# Play walk animation if not running
 			if current_speed == speed and current_animation_state != AnimationState.WALK:
-				play_animation("Walk")
+				play_animation("Anim/Walk")
 				current_animation_state = AnimationState.WALK
 		else:
 			velocity.x = move_toward(velocity.x, 0, speed * delta * 5)
 			velocity.z = move_toward(velocity.z, 0, speed * delta * 5)
 			if is_on_floor() and current_animation_state != AnimationState.IDLE:
-				play_animation("Idle")
+				play_animation("Anim/Idle")
 				current_animation_state = AnimationState.IDLE
 
 	# Check for double-tap dodge
@@ -115,7 +115,7 @@ func _physics_process(delta):
 			velocity.x = 0
 			velocity.z = 0
 			if is_on_floor():
-				play_animation("Idle")
+				play_animation("Anim/Idle")
 				current_animation_state = AnimationState.IDLE
 
 	move_and_slide()
@@ -137,7 +137,7 @@ func start_dodge(direction: Vector3):
 		velocity.z = direction.z * DODGE_DISTANCE / DODGE_DURATION
 		player_stats.set_dodging(true)
 		player_stats.use_stamina(20)
-		play_animation("Dodge")
+		play_animation("Anim/Dodge")
 		current_animation_state = AnimationState.DODGE
 		print("Dodging! Stamina left:", player_stats.stamina)
 
