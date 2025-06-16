@@ -65,22 +65,23 @@ size_flags_vertical = 2
 value = 100.0
 texture_progress = SubResource("GradientTexture2D_hcxxb")
 
-[node name="SpellGrid" type="GridContainer" parent="."]
+[node name="SpellGrid" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 374.0
-offset_top = -168.0
-offset_right = 478.0
-offset_bottom = -64.0
-grow_horizontal = 2
+offset_left = -160.0
+offset_top = -160.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
 grow_vertical = 0
-rotation = 0.785398
-columns = 2
 script = ExtResource("2_4n2dm")
+meditate_cooldown = 1.0
+meditate_mana_cost = 0.0
+slot_size = 50
 
 [node name="SpellSlot1" type="TextureRect" parent="SpellGrid"]
 clip_contents = true

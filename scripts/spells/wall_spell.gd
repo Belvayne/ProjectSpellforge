@@ -24,6 +24,17 @@ func _ready():
 	$MeshInstance3D/Area3D/CollisionShape3D.shape.extents = wall_size / 2  # Adjust collision shape
 	
 	# Set material color based on element
+	update_element_visuals()
+	
+	# Connect signals
+	$MeshInstance3D/Area3D.body_entered.connect(_on_area_3d_body_entered)
+	$MeshInstance3D/Area3D.body_exited.connect(_on_area_3d_body_exited)
+
+func set_element(new_element: int) -> void:
+	element = new_element
+	update_element_visuals()
+
+func update_element_visuals() -> void:
 	var material = $MeshInstance3D.mesh.surface_get_material(0).duplicate()
 	match element:
 		Element.FIRE:
@@ -31,10 +42,6 @@ func _ready():
 		Element.ICE:
 			material.albedo_color = Color(0.2, 0.6, 0.8)  # Blue for ice
 	$MeshInstance3D.material_override = material
-	
-	# Connect signals
-	$MeshInstance3D/Area3D.body_entered.connect(_on_area_3d_body_entered)
-	$MeshInstance3D/Area3D.body_exited.connect(_on_area_3d_body_exited)
 
 func _process(delta):
 	if current_burn_target and active:

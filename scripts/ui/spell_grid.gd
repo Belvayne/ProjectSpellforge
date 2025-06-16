@@ -1,6 +1,6 @@
-extends GridContainer
+extends Control
 
-enum SpellType { GROUND_TARGET, PROJECTILE, WALL }
+enum SpellType { GROUND_TARGET, PROJECTILE, WALL, MEDITATE }
 
 # References to the spell slot TextureRects
 @onready var spell_slot1: TextureRect = $SpellSlot1
@@ -13,13 +13,28 @@ enum SpellType { GROUND_TARGET, PROJECTILE, WALL }
 @export var ground_target_cooldown: float = 2.0  # Cooldown time in seconds
 @export var projectile_cooldown: float = 1.0  # Cooldown time in seconds
 @export var wall_cooldown: float = 3.0  # Cooldown time in seconds
+@export var meditate_cooldown: float = 5.0  # Cooldown time in seconds
 
+# Mana costs for each spell
+@export var ground_target_mana_cost: float = 15.0
+@export var projectile_mana_cost: float = 10.0
+@export var wall_mana_cost: float = 25.0
+@export var meditate_mana_cost: float = 5.0
+
+# Spell scenes
 var ground_target_spell_scene = preload("res://scenes/spells/ground_target_spell.tscn")
 var wall_spell_scene = preload("res://scenes/spells/wall_spell.tscn")
 var projectile_spell_scene = preload("res://scenes/spells/projectile_spell.tscn")
+var meditate_spell_scene = preload("res://scenes/spells/meditate_spell.tscn")
 
-# Icon generator
-var icon_generator = preload("res://scripts/ui/spell_icons.gd").new()
+# Spell icons
+var fire_ground_icon = preload("res://Assets/spells/ground/fireFloor.png")
+var ice_ground_icon = preload("res://Assets/spells/ground/iceFloor.png")
+var fire_projectile_icon = preload("res://Assets/spells/projectile/fireBolt.png")
+var ice_projectile_icon = preload("res://Assets/spells/projectile/iceBolt.png")
+var fire_wall_icon = preload("res://Assets/spells/wall/fireWall.png")
+var ice_wall_icon = preload("res://Assets/spells/wall/iceWall.png")
+var meditate_icon = preload("res://Assets/spells/meditate/meditate.png")
 
 # Visual settings
 @export var slot_size: int = 60  # Size of each spell slot
@@ -32,37 +47,52 @@ var icon_generator = preload("res://scripts/ui/spell_icons.gd").new()
 var ground_target_can_cast: bool = true
 var projectile_can_cast: bool = true
 var wall_can_cast: bool = true
+var meditate_can_cast: bool = true
 var ground_target_cooldown_timer: float = 0.0
 var projectile_cooldown_timer: float = 0.0
 var wall_cooldown_timer: float = 0.0
+var meditate_cooldown_timer: float = 0.0
 
 # Current element
 var current_element = 0  # 0 for Fire, 1 for Ice
+
+# Active meditate spell
+var active_meditate_spell = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Add to group for easy access
 	add_to_group("spell_grid")
 	
-	# Configure grid layout
-	columns = 2
-	custom_minimum_size = Vector2(slot_size * 2 + 10, slot_size * 2 + 10)  # Add some padding
-	add_theme_constant_override("h_separation", 5)  # Add spacing between slots
-	add_theme_constant_override("v_separation", 5)
-	
-	# Generate spell icons
-	var icons = icon_generator.generate_spell_icons()
+	# Set minimum size
+	custom_minimum_size = Vector2(slot_size * 2 + 10, slot_size * 2 + 10)
 	
 	# Set up spell slot icons
-	setup_spell_slot(spell_slot1, icons["ground_target"])
-	setup_spell_slot(spell_slot2, icons["projectile"])
-	setup_spell_slot(spell_slot3, icons["wall"])
+	setup_spell_slot(spell_slot1, fire_ground_icon)
+	setup_spell_slot(spell_slot2, fire_projectile_icon)
+	setup_spell_slot(spell_slot3, fire_wall_icon)
+	setup_spell_slot(spell_slot4, meditate_icon)
+	
+	# Position slots in diamond pattern
+	position_slots_in_diamond()
 	
 	# Hide spell grid by default
 	hide()
 	
 	print("SpellGrid ready")
 	print("Ground target spell scene loaded: ", ground_target_spell_scene != null)
+
+func position_slots_in_diamond():
+	# Calculate center position
+	var center_x = custom_minimum_size.x / 2
+	var center_y = custom_minimum_size.y / 2
+	var offset = slot_size * 1 + 5  # Adjusted spacing between slots
+	
+	# Position slots in diamond pattern
+	spell_slot1.position = Vector2(center_x, center_y - offset)  # Top
+	spell_slot2.position = Vector2(center_x + offset, center_y)  # Right
+	spell_slot3.position = Vector2(center_x - offset, center_y)  # Left
+	spell_slot4.position = Vector2(center_x, center_y + offset)  # Bottom
 
 func setup_spell_slot(slot: TextureRect, icon: Texture2D):
 	# Create background panel
@@ -87,6 +117,12 @@ func setup_spell_slot(slot: TextureRect, icon: Texture2D):
 	border.show_behind_parent = true
 	border.position = Vector2(-1, -1)  # Offset to create border effect
 
+func update_spell_icons():
+	# Update icons based on current element
+	spell_slot1.texture = fire_ground_icon if current_element == 0 else ice_ground_icon
+	spell_slot2.texture = fire_projectile_icon if current_element == 0 else ice_projectile_icon
+	spell_slot3.texture = fire_wall_icon if current_element == 0 else ice_wall_icon
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	# Update cooldown timers
@@ -110,6 +146,13 @@ func _process(delta):
 			wall_can_cast = true
 			wall_cooldown_timer = 0
 			update_slot_colors()
+			
+	if not meditate_can_cast:
+		meditate_cooldown_timer -= delta
+		if meditate_cooldown_timer <= 0:
+			meditate_can_cast = true
+			meditate_cooldown_timer = 0
+			update_slot_colors()
 	
 	# Check for spell slot inputs and update colors
 	if Input.is_action_pressed("SpellSlot1"):
@@ -130,7 +173,7 @@ func _process(delta):
 	if Input.is_action_pressed("SpellSlot4"):
 		spell_slot4.modulate = slot_pressed_color
 	else:
-		spell_slot4.modulate = Color.WHITE
+		spell_slot4.modulate = Color.WHITE if meditate_can_cast else slot_cooldown_color
 	
 	# Handle spell casting
 	if Input.is_action_just_pressed("SpellSlot1") and ground_target_can_cast:
@@ -142,42 +185,65 @@ func _process(delta):
 	elif Input.is_action_just_pressed("SpellSlot3") and wall_can_cast:
 		print("SpellSlot3 pressed - Wall spell")
 		cast_wall_spell()
+	elif Input.is_action_just_pressed("SpellSlot4") and meditate_can_cast:
+		print("SpellSlot4 pressed - Meditate spell")
+		cast_meditate_spell()
+	elif Input.is_action_just_released("SpellSlot4"):
+		print("SpellSlot4 released - Stopping meditation")
+		stop_meditation()
+		
+	# Check for player movement to stop meditation
+	if active_meditate_spell:
+		var player = get_tree().get_first_node_in_group("player")
+		if player and (Input.is_action_pressed("ui_left") or Input.is_action_pressed("ui_right") or 
+			Input.is_action_pressed("ui_up") or Input.is_action_pressed("ui_down")):
+			stop_meditation()
 
 func update_slot_colors():
 	spell_slot1.modulate = Color.WHITE if ground_target_can_cast else slot_cooldown_color
 	spell_slot2.modulate = Color.WHITE if projectile_can_cast else slot_cooldown_color
 	spell_slot3.modulate = Color.WHITE if wall_can_cast else slot_cooldown_color
-	spell_slot4.modulate = Color.WHITE
+	spell_slot4.modulate = Color.WHITE if meditate_can_cast else slot_cooldown_color
 
 func cast_ground_target_spell():
-	print("Starting spell cast")
-	# Get the player node
+	print("Starting ground target spell cast")
+	
 	var player = get_tree().get_first_node_in_group("player")
 	if not player:
 		print("Player not found!")
 		return
-	print("Player found at position: ", player.global_position)
 		
-	# Calculate position in front of player
-	var spell_position = player.global_position + (-player.transform.basis.z * spell_distance)
-	spell_position.y = 0.3  # DO NOT CHANGE THIS
-	print("Calculated spell position: ", spell_position)
-	
-	# Create and place the spell
+	var player_stats = player.get_node("PlayerStats")
+	if not player_stats:
+		print("PlayerStats not found!")
+		return
+		
+	if player_stats.mana < ground_target_mana_cost:
+		print("Not enough mana for ground target spell!")
+		return
+		
 	var spell = ground_target_spell_scene.instantiate()
 	if not spell:
-		print("Failed to instantiate spell!")
+		print("Failed to instantiate ground target spell!")
 		return
-	print("Spell instantiated successfully")
+		
+	# Set the spell's position in front of the player
+	var player_transform = player.global_transform
+	var spell_position = player_transform.origin + player_transform.basis.z * -spell_distance
+	spell_position.y = 0.3
+	spell.global_transform.origin = spell_position
+	
+	# Set the spell's rotation to match player's forward direction
+	spell.rotation.y = player.rotation.y
 	
 	# Set the spell's element
-	spell.element = current_element
+	spell.set_element(current_element)
 	
+	# Add the spell to the scene
 	get_tree().root.add_child(spell)
-	spell.global_position = spell_position
-	# Rotate the ground spell to match player's forward direction
-	spell.rotation.y = player.rotation.y
-	print("Spell added to scene at position: ", spell.global_position)
+	
+	# Consume mana
+	player_stats.use_mana(ground_target_mana_cost)
 	
 	# Start cooldown
 	ground_target_can_cast = false
@@ -191,27 +257,40 @@ func cast_projectile_spell():
 	if not player:
 		print("Player not found!")
 		return
-	print("Player found at position: ", player.global_position)
 		
-	# Calculate position in front of player
-	var spell_position = player.global_position + (-player.transform.basis.z * spell_distance)
-	spell_position.y = 2  # DO NOT CHANGE THIS
-	print("Calculated spell position: ", spell_position)
-	
+	# Get the player stats node
+	var player_stats = player.get_node("PlayerStats")
+	if not player_stats:
+		print("PlayerStats not found!")
+		return
+		
+	# Check if player has enough mana
+	if player_stats.mana < projectile_mana_cost:
+		print("Not enough mana for projectile spell!")
+		return
+		
 	# Create and place the spell
 	var spell = projectile_spell_scene.instantiate()
 	if not spell:
 		print("Failed to instantiate projectile spell!")
 		return
-	print("Projectile spell instantiated successfully")
+		
+	# Set the spell's position in front of the player
+	var player_transform = player.global_transform
+	var spell_position = player_transform.origin + player_transform.basis.z * -1.0
+	spell.global_transform.origin = spell_position
 	
-	# Set the spell's element and direction
-	spell.element = current_element
-	spell.direction = -player.transform.basis.z  # Set direction to player's forward direction
+	# Set the spell's direction to match player's forward direction
+	spell.direction = -player_transform.basis.z
 	
+	# Set the spell's element
+	spell.set_element(current_element)
+	
+	# Add the spell to the scene
 	get_tree().root.add_child(spell)
-	spell.global_position = spell_position
-	print("Projectile spell added to scene at position: ", spell.global_position)
+	
+	# Consume mana
+	player_stats.use_mana(projectile_mana_cost)
 	
 	# Start cooldown
 	projectile_can_cast = false
@@ -225,34 +304,92 @@ func cast_wall_spell():
 	if not player:
 		print("Player not found!")
 		return
-	print("Player found at position: ", player.global_position)
 		
-	# Calculate position in front of player
-	var spell_position = player.global_position + (-player.transform.basis.z * spell_distance)
-	spell_position.y = 0.3  # DO NOT CHANGE THIS
-	print("Calculated spell position: ", spell_position)
-	
+	# Get the player stats node
+	var player_stats = player.get_node("PlayerStats")
+	if not player_stats:
+		print("PlayerStats not found!")
+		return
+		
+	# Check if player has enough mana
+	if player_stats.mana < wall_mana_cost:
+		print("Not enough mana for wall spell!")
+		return
+		
 	# Create and place the spell
 	var spell = wall_spell_scene.instantiate()
 	if not spell:
 		print("Failed to instantiate wall spell!")
 		return
-	print("Wall spell instantiated successfully")
+		
+	# Set the spell's position in front of the player
+	var player_transform = player.global_transform
+	var spell_position = player_transform.origin + player_transform.basis.z * -spell_distance
+	spell_position.y = 0  # Keep it at ground level
+	spell.global_transform.origin = spell_position
+	
+	# Set the spell's rotation to match player's forward direction
+	spell.rotation.y = player.rotation.y
 	
 	# Set the spell's element
-	spell.element = current_element
+	spell.set_element(current_element)
 	
+	# Add the spell to the scene
 	get_tree().root.add_child(spell)
-	spell.global_position = spell_position
-	# Rotate the wall to face the player's forward direction
-	spell.rotation.y = player.rotation.y
-	print("Wall spell added to scene at position: ", spell.global_position)
+	
+	# Consume mana
+	player_stats.use_mana(wall_mana_cost)
 	
 	# Start cooldown
 	wall_can_cast = false
 	wall_cooldown_timer = wall_cooldown
 	print("Wall cooldown started")
 
+func cast_meditate_spell():
+	print("Starting meditate spell cast")
+	# Get the player node
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		print("Player not found!")
+		return
+		
+	# Get the player stats node
+	var player_stats = player.get_node("PlayerStats")
+	if not player_stats:
+		print("PlayerStats not found!")
+		return
+		
+	# Check if player has enough mana
+	if player_stats.mana < meditate_mana_cost:
+		print("Not enough mana for meditate spell!")
+		return
+		
+	# Create and place the spell
+	var spell = meditate_spell_scene.instantiate()
+	if not spell:
+		print("Failed to instantiate meditate spell!")
+		return
+		
+	get_tree().root.add_child(spell)
+	active_meditate_spell = spell
+	spell.start_meditation()
+	
+	# Consume mana
+	player_stats.use_mana(meditate_mana_cost)
+	
+	# Start cooldown
+	meditate_can_cast = false
+	meditate_cooldown_timer = meditate_cooldown
+	print("Meditate cooldown started")
+
+func stop_meditation():
+	if active_meditate_spell:
+		active_meditate_spell.stop_meditation()
+		active_meditate_spell.queue_free()
+		active_meditate_spell = null
+		print("Meditation stopped")
+
 func set_spell_element(element: int):
 	current_element = element
+	update_spell_icons()  # Update icons when element changes
 	print("Spell element set to: ", "Fire" if element == 0 else "Ice")
