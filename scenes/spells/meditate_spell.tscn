@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://w2bneylglho"]
 
 [ext_resource type="Script" path="res://scripts/spells/meditate_spell.gd" id="1_medit"]
 
 [node name="MeditateSpell" type="Node3D"]
-script = ExtResource("1_medit") 
+script = ExtResource("1_medit")
+health_regen_rate = 10.0
+mana_regen_rate = 20.0

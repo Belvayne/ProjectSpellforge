@@ -19,11 +19,20 @@ var dodge_timer = 0.0
 var is_dodging = false
 var dodge_direction = Vector3.ZERO
 
-@onready var camera = $Camera3D
+@onready var camera_mount = $CameraMount
+@onready var camera = $CameraMount/Camera3D
 @onready var player_stats = $PlayerStats
+@onready var character_model = $CharacterModel
+@onready var animation_player = $CharacterModel/AnimationPlayer
+
+# Animation states
+enum AnimationState { IDLE, WALK, RUN, JUMP, DODGE }
+var current_animation_state = AnimationState.IDLE
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# Start with idle animation
+	play_animation("Idle")
 
 func _input(event):
 	# Mouse Look
@@ -31,7 +40,7 @@ func _input(event):
 		rotate_y(-event.relative.x * mouse_sensitivity)
 		rotation_x -= event.relative.y * (mouse_sensitivity * 100)
 		rotation_x = clamp(rotation_x, -90, 90)
-		camera.rotation_degrees.x = rotation_x
+		camera_mount.rotation_degrees.x = rotation_x
 
 	# Unlock mouse with Escape
 	if event.is_action_pressed("ui_cancel"):
@@ -41,10 +50,15 @@ func _physics_process(delta):
 	# Apply gravity
 	if not is_on_floor():
 		velocity.y -= gravity * delta
+		if current_animation_state != AnimationState.JUMP:
+			play_animation("Jump")
+			current_animation_state = AnimationState.JUMP
 
 	# Handle Jumping
 	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
 		velocity.y = jump_velocity
+		play_animation("Jump")
+		current_animation_state = AnimationState.JUMP
 
 	# Handle Sprinting
 	var current_speed = speed
@@ -52,6 +66,9 @@ func _physics_process(delta):
 		current_speed = sprint_speed
 		player_stats.set_sprinting(true)
 		player_stats.use_stamina(10 * delta)
+		if current_animation_state != AnimationState.RUN:
+			play_animation("Run")
+			current_animation_state = AnimationState.RUN
 	else:
 		player_stats.set_sprinting(false)
 
@@ -63,9 +80,21 @@ func _physics_process(delta):
 		if direction != Vector3.ZERO:
 			velocity.x = direction.x * current_speed
 			velocity.z = direction.z * current_speed
+			# Rotate character model to face movement direction
+			if character_model:
+				var target_rotation = atan2(direction.x, direction.z)
+				character_model.rotation.y = target_rotation
+			
+			# Play walk animation if not running
+			if current_speed == speed and current_animation_state != AnimationState.WALK:
+				play_animation("Walk")
+				current_animation_state = AnimationState.WALK
 		else:
 			velocity.x = move_toward(velocity.x, 0, speed * delta * 5)
 			velocity.z = move_toward(velocity.z, 0, speed * delta * 5)
+			if is_on_floor() and current_animation_state != AnimationState.IDLE:
+				play_animation("Idle")
+				current_animation_state = AnimationState.IDLE
 
 	# Check for double-tap dodge
 	if check_double_tap("ui_up"):
@@ -85,6 +114,9 @@ func _physics_process(delta):
 			player_stats.set_dodging(false)
 			velocity.x = 0
 			velocity.z = 0
+			if is_on_floor():
+				play_animation("Idle")
+				current_animation_state = AnimationState.IDLE
 
 	move_and_slide()
 
@@ -103,9 +135,15 @@ func start_dodge(direction: Vector3):
 		dodge_timer = DODGE_DURATION
 		velocity.x = direction.x * DODGE_DISTANCE / DODGE_DURATION
 		velocity.z = direction.z * DODGE_DISTANCE / DODGE_DURATION
-		player_stats.set_dodging(true)  # When dodging starts
+		player_stats.set_dodging(true)
 		player_stats.use_stamina(20)
+		play_animation("Dodge")
+		current_animation_state = AnimationState.DODGE
 		print("Dodging! Stamina left:", player_stats.stamina)
+
+func play_animation(anim_name: String):
+	if animation_player and animation_player.has_animation(anim_name):
+		animation_player.play(anim_name)
 
 func _process(_delta):
 	if Input.is_action_just_pressed("take_damage(debug)"):
