@@ -1,0 +1,188 @@
+Spell System Documentation
+=========================
+
+Element System
+-------------
+The spell system currently supports two elements:
+1. Fire (Element.FIRE = 0)
+2. Ice (Element.ICE = 1)
+
+Element Selection
+---------------
+- Elements can be changed through the Spellbook UI
+- The Spellbook can be opened using the "Spellbook" action (default: Tab key)
+- Elements are selected using buttons in the Spellbook interface
+- The selected element is visually indicated by a light gray color on the button
+- The default element is Fire
+
+Spell Attributes
+--------------
+Each spell has the following base attributes:
+- base_damage: Base damage before scaling (default: 10)
+- tick_rate: Time between damage ticks (default: 1.0 seconds)
+- area_size: Size of the effect area (default: Vector3(3, 0.2, 3))
+- burn_ticks: Number of damage ticks (default: 3)
+- stack_time: Time before applying another stack (default: 3.0 seconds)
+- lifetime: Time before spell despawns (default: 5.0 seconds)
+
+Element Effects
+-------------
+Fire Element:
+- Visual: Red color (RGB: 0.8, 0.2, 0.2)
+- Applies damage over time
+- Can stack up to 2 times
+- Each stack applies half the base damage
+
+Ice Element:
+- Visual: Blue color (RGB: 0.2, 0.6, 0.8)
+- Applies damage over time
+- Can stack up to 2 times
+- Each stack applies half the base damage
+
+Spell Casting
+-----------
+1. Spells are cast using the spell grid (1-4 keys)
+2. Currently implemented spell types:
+   - Ground Target Spell (Slot 1)
+   - Projectile Spell (Slot 2) - Not implemented
+   - Wall Spell (Slot 3) - Not implemented
+   - Slot 4 - Reserved for future use
+
+Spell Grid Interface
+-----------------
+- Shows available spell slots
+- Each slot has a unique icon
+- Slots change color when:
+  - Selected (pressed)
+  - On cooldown (darker)
+  - Ready to cast (normal)
+
+Cooldown System
+-------------
+- Spells have a cooldown period (default: 2.0 seconds)
+- During cooldown, spell slots appear darker
+- Cooldown is tracked per spell type
+
+Damage Calculation
+----------------
+Final damage is calculated as:
+1. Initial hit: base_damage * spellpower
+2. Element effect: (base_damage * spellpower) * 0.5
+3. Element effects can stack up to 2 times
+4. Each stack applies the element effect damage
+
+Visual Feedback
+-------------
+- Fire spells appear red
+- Ice spells appear blue
+- Spell effects show damage ticks in the console
+- Spell slots show cooldown state
+- Spellbook shows currently selected element
+
+Design Decisions and Alternatives
+-------------------------------
+Element System Design:
+1. Enum-based Element System
+   - Alternative 1: String-based elements
+     * Pros: More readable, easier to add new elements
+     * Cons: More error-prone, slower performance, harder to validate
+   - Alternative 2: Class-based elements
+     * Pros: More flexible, can add element-specific behavior
+     * Cons: More complex, overkill for current needs
+   - Chosen: Enum-based system
+     * Pros: Type-safe, performant, simple to implement
+     * Cons: Less flexible for future expansion
+     * Reason: Current needs are simple (just element type), and enums provide good balance of safety and simplicity
+
+2. Element Selection UI
+   - Alternative 1: Radial menu
+     * Pros: Quick selection, good for many elements
+     * Cons: More complex to implement, might be confusing
+   - Alternative 2: Hotkeys for each element
+     * Pros: Fast switching, no UI needed
+     * Cons: Limited by keyboard keys, less intuitive
+   - Chosen: Spellbook with buttons
+     * Pros: Clear visual feedback, intuitive, scalable
+     * Cons: Requires UI interaction
+     * Reason: Provides best balance of usability and clarity
+
+Spell Attributes Design:
+1. Base Attributes System
+   - Alternative 1: Individual scripts per spell type
+     * Pros: More specific control, easier to modify individual spells
+     * Cons: Code duplication, harder to maintain
+   - Alternative 2: Data-driven approach with JSON/XML
+     * Pros: Easy to modify without code changes
+     * Cons: More complex to implement, harder to debug
+   - Chosen: Base class with exported variables
+     * Pros: Good balance of flexibility and maintainability
+     * Cons: Less flexible than data-driven approach
+     * Reason: Provides good balance of ease of use and maintainability
+
+2. Damage System
+   - Alternative 1: Flat damage values
+     * Pros: Simple to implement and understand
+     * Cons: Less interesting gameplay
+   - Alternative 2: Complex damage formulas
+     * Pros: More depth, interesting combinations
+     * Cons: Harder to balance, more complex
+   - Chosen: Base damage with scaling and stacking
+     * Pros: Good balance of simplicity and depth
+     * Cons: Might need rebalancing
+     * Reason: Provides interesting gameplay without overwhelming complexity
+
+Spell Casting System:
+1. Spell Grid Implementation
+   - Alternative 1: Single spell slot
+     * Pros: Simple to implement
+     * Cons: Limited gameplay options
+   - Alternative 2: Unlimited spell slots
+     * Pros: Maximum flexibility
+     * Cons: UI becomes cluttered, harder to balance
+   - Chosen: 4-slot grid
+     * Pros: Good balance of options and usability
+     * Cons: Limited number of spells
+     * Reason: Provides enough variety without overwhelming the player
+
+2. Cooldown System
+   - Alternative 1: Global cooldown
+     * Pros: Simple to implement
+     * Cons: Less strategic depth
+   - Alternative 2: Resource-based (mana/stamina)
+     * Pros: More strategic depth
+     * Cons: More complex to balance
+   - Chosen: Per-spell cooldown
+     * Pros: Good balance of strategy and simplicity
+     * Cons: Might need fine-tuning
+     * Reason: Provides strategic depth without overwhelming complexity
+
+Visual Feedback System:
+1. Color Coding
+   - Alternative 1: Particle effects
+     * Pros: More visually impressive
+     * Cons: More resource-intensive
+   - Alternative 2: Text-based indicators
+     * Pros: Very clear
+     * Cons: Less immersive
+   - Chosen: Simple color changes
+     * Pros: Clear, performant, easy to understand
+     * Cons: Less visually impressive
+     * Reason: Provides clear feedback without performance impact
+
+Future Considerations:
+1. Element System Expansion
+   - Could be expanded to include more elements
+   - Might need to reconsider enum-based approach if number of elements grows significantly
+   - Consider implementing element combinations
+
+2. Spell System Evolution
+   - Could add more complex damage calculations
+   - Might implement element-specific effects
+   - Consider adding status effects
+
+3. UI Improvements
+   - Could add more visual feedback
+   - Might implement more complex spell selection
+   - Consider adding spell customization
+
+Note: This documentation reflects the current state of the spell system. Future updates may add more elements or modify existing mechanics. 

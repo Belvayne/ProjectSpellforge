@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://brvh87glqdqx5"]
+
+[ext_resource type="Script" path="res://scripts/spells/projectile_spell.gd" id="1_lto1p"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ytcn7"]
+albedo_color = Color(0.486275, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_c08hc"]
+material = SubResource("StandardMaterial3D_ytcn7")
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_i08mu"]
+
+[node name="ProjectileSpell" type="Node3D"]
+script = ExtResource("1_lto1p")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_c08hc")
+
+[node name="Area3D" type="Area3D" parent="MeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/Area3D"]
+shape = SubResource("SphereShape3D_i08mu")
