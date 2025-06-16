@@ -4,7 +4,7 @@ enum Element { FIRE, ICE }
 
 @export var base_damage: int = 10  # Base damage before scaling
 @export var tick_rate: float = 1.0  # Time between damage ticks
-@export var area_size: Vector3 = Vector3(3, 0.2, 3)  # Default size of the effect
+@export var area_size: Vector3 = Vector3(6, 0.2, 3)  # Default size of the effect
 @export var burn_ticks: int = 3  # Number of burn ticks
 @export var stack_time: float = 3.0  # Time before applying another stack
 @export var lifetime: float = 5.0  # Time before spell despawns

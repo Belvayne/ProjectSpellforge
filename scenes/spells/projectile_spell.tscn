@@ -9,9 +9,11 @@ albedo_color = Color(0.486275, 0, 0, 1)
 material = SubResource("StandardMaterial3D_ytcn7")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_i08mu"]
+radius = 0.5
 
 [node name="ProjectileSpell" type="Node3D"]
 script = ExtResource("1_lto1p")
+projectile_size = 0.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_c08hc")

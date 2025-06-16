@@ -10,8 +10,13 @@ enum SpellType { GROUND_TARGET, PROJECTILE, WALL }
 
 # Ground target spell settings
 @export var spell_distance: float = 3.0  # Distance in front of player to place the spell
-@export var spell_cooldown: float = 2.0  # Cooldown time in seconds
+@export var ground_target_cooldown: float = 2.0  # Cooldown time in seconds
+@export var projectile_cooldown: float = 1.0  # Cooldown time in seconds
+@export var wall_cooldown: float = 3.0  # Cooldown time in seconds
+
 var ground_target_spell_scene = preload("res://scenes/spells/ground_target_spell.tscn")
+var wall_spell_scene = preload("res://scenes/spells/wall_spell.tscn")
+var projectile_spell_scene = preload("res://scenes/spells/projectile_spell.tscn")
 
 # Icon generator
 var icon_generator = preload("res://scripts/ui/spell_icons.gd").new()
@@ -24,8 +29,12 @@ var icon_generator = preload("res://scripts/ui/spell_icons.gd").new()
 @export var slot_cooldown_color: Color = Color(0.2, 0.2, 0.2, 0.4)  # Darker when on cooldown
 
 # Cooldown tracking
-var can_cast: bool = true
-var cooldown_timer: float = 0.0
+var ground_target_can_cast: bool = true
+var projectile_can_cast: bool = true
+var wall_can_cast: bool = true
+var ground_target_cooldown_timer: float = 0.0
+var projectile_cooldown_timer: float = 0.0
+var wall_cooldown_timer: float = 0.0
 
 # Current element
 var current_element = 0  # 0 for Fire, 1 for Ice
@@ -80,48 +89,64 @@ func setup_spell_slot(slot: TextureRect, icon: Texture2D):
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	# Update cooldown timer
-	if not can_cast:
-		cooldown_timer -= delta
-		if cooldown_timer <= 0:
-			can_cast = true
-			cooldown_timer = 0
+	# Update cooldown timers
+	if not ground_target_can_cast:
+		ground_target_cooldown_timer -= delta
+		if ground_target_cooldown_timer <= 0:
+			ground_target_can_cast = true
+			ground_target_cooldown_timer = 0
+			update_slot_colors()
+			
+	if not projectile_can_cast:
+		projectile_cooldown_timer -= delta
+		if projectile_cooldown_timer <= 0:
+			projectile_can_cast = true
+			projectile_cooldown_timer = 0
+			update_slot_colors()
+			
+	if not wall_can_cast:
+		wall_cooldown_timer -= delta
+		if wall_cooldown_timer <= 0:
+			wall_can_cast = true
+			wall_cooldown_timer = 0
 			update_slot_colors()
 	
 	# Check for spell slot inputs and update colors
 	if Input.is_action_pressed("SpellSlot1"):
 		spell_slot1.modulate = slot_pressed_color
 	else:
-		spell_slot1.modulate = Color.WHITE if can_cast else slot_cooldown_color
+		spell_slot1.modulate = Color.WHITE if ground_target_can_cast else slot_cooldown_color
 		
 	if Input.is_action_pressed("SpellSlot2"):
 		spell_slot2.modulate = slot_pressed_color
 	else:
-		spell_slot2.modulate = Color.WHITE if can_cast else slot_cooldown_color
+		spell_slot2.modulate = Color.WHITE if projectile_can_cast else slot_cooldown_color
 		
 	if Input.is_action_pressed("SpellSlot3"):
 		spell_slot3.modulate = slot_pressed_color
 	else:
-		spell_slot3.modulate = Color.WHITE if can_cast else slot_cooldown_color
+		spell_slot3.modulate = Color.WHITE if wall_can_cast else slot_cooldown_color
 		
 	if Input.is_action_pressed("SpellSlot4"):
 		spell_slot4.modulate = slot_pressed_color
 	else:
-		spell_slot4.modulate = Color.WHITE if can_cast else slot_cooldown_color
-		
+		spell_slot4.modulate = Color.WHITE
+	
 	# Handle spell casting
-	if Input.is_action_just_pressed("SpellSlot1") and can_cast:
+	if Input.is_action_just_pressed("SpellSlot1") and ground_target_can_cast:
 		print("SpellSlot1 pressed and can_cast is true")
 		cast_ground_target_spell()
-	elif Input.is_action_just_pressed("SpellSlot2") and can_cast:
-		print("SpellSlot2 pressed - Projectile spell (not implemented)")
-	elif Input.is_action_just_pressed("SpellSlot3") and can_cast:
-		print("SpellSlot3 pressed - Wall spell (not implemented)")
+	elif Input.is_action_just_pressed("SpellSlot2") and projectile_can_cast:
+		print("SpellSlot2 pressed - Projectile spell")
+		cast_projectile_spell()
+	elif Input.is_action_just_pressed("SpellSlot3") and wall_can_cast:
+		print("SpellSlot3 pressed - Wall spell")
+		cast_wall_spell()
 
 func update_slot_colors():
-	spell_slot1.modulate = Color.WHITE
-	spell_slot2.modulate = Color.WHITE
-	spell_slot3.modulate = Color.WHITE
+	spell_slot1.modulate = Color.WHITE if ground_target_can_cast else slot_cooldown_color
+	spell_slot2.modulate = Color.WHITE if projectile_can_cast else slot_cooldown_color
+	spell_slot3.modulate = Color.WHITE if wall_can_cast else slot_cooldown_color
 	spell_slot4.modulate = Color.WHITE
 
 func cast_ground_target_spell():
@@ -135,7 +160,7 @@ func cast_ground_target_spell():
 		
 	# Calculate position in front of player
 	var spell_position = player.global_position + (-player.transform.basis.z * spell_distance)
-	spell_position.y = 0.3 # Do not change this
+	spell_position.y = 0.3  # DO NOT CHANGE THIS
 	print("Calculated spell position: ", spell_position)
 	
 	# Create and place the spell
@@ -153,9 +178,78 @@ func cast_ground_target_spell():
 	print("Spell added to scene at position: ", spell.global_position)
 	
 	# Start cooldown
-	can_cast = false
-	cooldown_timer = spell_cooldown
-	print("Cooldown started")
+	ground_target_can_cast = false
+	ground_target_cooldown_timer = ground_target_cooldown
+	print("Ground target cooldown started")
+
+func cast_projectile_spell():
+	print("Starting projectile spell cast")
+	# Get the player node
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		print("Player not found!")
+		return
+	print("Player found at position: ", player.global_position)
+		
+	# Calculate position in front of player
+	var spell_position = player.global_position + (-player.transform.basis.z * spell_distance)
+	spell_position.y = 2  # DO NOT CHANGE THIS
+	print("Calculated spell position: ", spell_position)
+	
+	# Create and place the spell
+	var spell = projectile_spell_scene.instantiate()
+	if not spell:
+		print("Failed to instantiate projectile spell!")
+		return
+	print("Projectile spell instantiated successfully")
+	
+	# Set the spell's element and direction
+	spell.element = current_element
+	spell.direction = -player.transform.basis.z  # Set direction to player's forward direction
+	
+	get_tree().root.add_child(spell)
+	spell.global_position = spell_position
+	print("Projectile spell added to scene at position: ", spell.global_position)
+	
+	# Start cooldown
+	projectile_can_cast = false
+	projectile_cooldown_timer = projectile_cooldown
+	print("Projectile cooldown started")
+
+func cast_wall_spell():
+	print("Starting wall spell cast")
+	# Get the player node
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		print("Player not found!")
+		return
+	print("Player found at position: ", player.global_position)
+		
+	# Calculate position in front of player
+	var spell_position = player.global_position + (-player.transform.basis.z * spell_distance)
+	spell_position.y = 0.3  # DO NOT CHANGE THIS
+	print("Calculated spell position: ", spell_position)
+	
+	# Create and place the spell
+	var spell = wall_spell_scene.instantiate()
+	if not spell:
+		print("Failed to instantiate wall spell!")
+		return
+	print("Wall spell instantiated successfully")
+	
+	# Set the spell's element
+	spell.element = current_element
+	
+	get_tree().root.add_child(spell)
+	spell.global_position = spell_position
+	# Rotate the wall to face the player's forward direction
+	spell.rotation.y = player.rotation.y
+	print("Wall spell added to scene at position: ", spell.global_position)
+	
+	# Start cooldown
+	wall_can_cast = false
+	wall_cooldown_timer = wall_cooldown
+	print("Wall cooldown started")
 
 func set_spell_element(element: int):
 	current_element = element
