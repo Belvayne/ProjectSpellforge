@@ -14,7 +14,7 @@ size = Vector3(0.750488, 1, 1)
 [node name="GroundTargetSpell" type="Node3D"]
 process_mode = 3
 script = ExtResource("1_e22ou")
-area_size = Vector3(1, 0.7, 1)
+area_size = Vector3(4, 0.5, 3)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(2, 0, 0, 0, 0.01, 0, 0, 0, 2, 0, 0, 0)

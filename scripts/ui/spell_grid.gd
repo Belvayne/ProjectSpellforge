@@ -175,6 +175,8 @@ func cast_ground_target_spell():
 	
 	get_tree().root.add_child(spell)
 	spell.global_position = spell_position
+	# Rotate the ground spell to match player's forward direction
+	spell.rotation.y = player.rotation.y
 	print("Spell added to scene at position: ", spell.global_position)
 	
 	# Start cooldown
