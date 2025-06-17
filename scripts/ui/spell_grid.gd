@@ -278,6 +278,7 @@ func cast_projectile_spell():
 	# Set the spell's position in front of the player
 	var player_transform = player.global_transform
 	var spell_position = player_transform.origin + player_transform.basis.z * -1.0
+	spell_position.y = player_transform.origin.y + 1  # Use player's height plus a small offset
 	spell.global_transform.origin = spell_position
 	
 	# Set the spell's direction to match player's forward direction

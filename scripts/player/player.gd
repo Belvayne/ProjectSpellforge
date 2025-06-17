@@ -80,10 +80,9 @@ func _physics_process(delta):
 		if direction != Vector3.ZERO:
 			velocity.x = direction.x * current_speed
 			velocity.z = direction.z * current_speed
-			# Rotate character model to face movement direction
+			# Make character model instantly face opposite of camera direction
 			if character_model:
-				var target_rotation = atan2(direction.x, direction.z)
-				character_model.rotation.y = target_rotation
+				character_model.rotation.y = camera_mount.rotation.y + PI
 			
 			# Play walk animation if not running
 			if current_speed == speed and current_animation_state != AnimationState.WALK:

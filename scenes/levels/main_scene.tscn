@@ -16,7 +16,7 @@
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="Dummy" parent="." instance=ExtResource("7_qcoxd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.01569, 0.444454, -3.50814)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.01569, 0.00602037, -3.50814)
 
 [node name="HUD" parent="." instance=ExtResource("3_geww2")]
 

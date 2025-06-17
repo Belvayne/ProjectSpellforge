@@ -29,6 +29,7 @@ func _ready():
 	# Connect signals
 	$MeshInstance3D/Area3D.body_entered.connect(_on_area_3d_body_entered)
 	$MeshInstance3D/Area3D.body_exited.connect(_on_area_3d_body_exited)
+	$MeshInstance3D/Area3D.area_entered.connect(_on_area_3d_area_entered)
 
 func set_element(new_element: int) -> void:
 	element = new_element
@@ -71,6 +72,19 @@ func _on_area_3d_body_exited(body):
 		current_burn_target = null
 		stack_timer = 0.0
 		burn_stacks = 0
+
+func _on_area_3d_area_entered(area):
+	# Check if the area belongs to a player or enemy
+	var parent = area.get_parent()
+	if parent.has_node("PlayerStats") and active:
+		current_burn_target = parent.get_node("PlayerStats")
+		stack_timer = 0.0
+		# Apply initial damage
+		var initial_damage = base_damage * spellpower
+		current_burn_target.take_damage(initial_damage)
+		print("Initial damage: ", initial_damage)
+		# Start first element effect
+		apply_element_effect(current_burn_target)
 
 func apply_element_effect(player_stats):
 	burn_stacks += 1

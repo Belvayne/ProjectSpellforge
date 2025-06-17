@@ -106,3 +106,27 @@ clip_contents = true
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 texture = SubResource("CanvasTexture_ah75y")
+
+[node name="Control" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 28.744
+anchor_right = 28.829
+offset_left = -251.76
+offset_right = -3.16003
+offset_bottom = 210.0
+grow_horizontal = 0
+text = "Keybinds
+TAB|open spellbook
+Double tap a direction to dodge
+
+Spellcasting
+1|cast floor spell
+2|cast projectile spell
+3|cast wall spell
+4|meditate"

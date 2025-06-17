@@ -2,11 +2,13 @@ extends Node3D
 
 @onready var health_label = $HealthLabel
 @onready var health_bar = $HealthBar/Billboard
-var current_health = 100
-var max_health = 100
+@onready var area = $Area3D
+@onready var player_stats = $PlayerStats
 
 func _ready():
 	update_health_display()
+	# Connect collision signals
+	area.area_entered.connect(_on_area_entered)
 
 func _process(_delta):
 	# Make the dummy face the player
@@ -22,19 +24,16 @@ func _process(_delta):
 			# Smoothly rotate to face player
 			rotation.y = lerp_angle(rotation.y, target_angle, 0.1)
 
-func take_damage(amount):
-	current_health -= amount
-	if current_health < 0:
-		current_health = 0
-	update_health_display()
-	print("Dummy took ", amount, " damage. Health: ", current_health)
+func _on_area_entered(area):
+	if area.is_in_group("projectile"):
+		player_stats.take_damage(15)  # Base damage from projectile
 
 func update_health_display():
 	if health_label:
-		health_label.text = str(current_health) + "/" + str(max_health)
+		health_label.text = str(player_stats.current_health) + "/" + str(player_stats.max_health)
 	if health_bar:
 		# Update health bar color based on health percentage
-		var health_percent = float(current_health) / float(max_health)
+		var health_percent = float(player_stats.current_health) / float(player_stats.max_health)
 		if health_percent > 0.6:
 			health_bar.modulate = Color(0, 1, 0)  # Green
 		elif health_percent > 0.3:

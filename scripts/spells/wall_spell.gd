@@ -21,14 +21,15 @@ var despawn_timer = 0.0
 func _ready():
 	# Set size dynamically
 	$MeshInstance3D.scale = wall_size
-	$MeshInstance3D/Area3D/CollisionShape3D.shape.extents = wall_size / 2  # Adjust collision shape
+	$Area3D/CollisionShape3D.shape.extents = wall_size / 2  # Adjust collision shape
 	
 	# Set material color based on element
 	update_element_visuals()
 	
 	# Connect signals
-	$MeshInstance3D/Area3D.body_entered.connect(_on_area_3d_body_entered)
-	$MeshInstance3D/Area3D.body_exited.connect(_on_area_3d_body_exited)
+	$Area3D.body_entered.connect(_on_area_3d_body_entered)
+	$Area3D.body_exited.connect(_on_area_3d_body_exited)
+	$Area3D.area_entered.connect(_on_area_3d_area_entered)
 
 func set_element(new_element: int) -> void:
 	element = new_element
@@ -71,6 +72,19 @@ func _on_area_3d_body_exited(body):
 		current_burn_target = null
 		stack_timer = 0.0
 		burn_stacks = 0
+
+func _on_area_3d_area_entered(area):
+	# Check if the area belongs to a player or enemy
+	var parent = area.get_parent()
+	if parent.has_node("PlayerStats") and active:
+		current_burn_target = parent.get_node("PlayerStats")
+		stack_timer = 0.0
+		# Apply initial damage
+		var initial_damage = base_damage * spellpower
+		current_burn_target.take_damage(initial_damage)
+		print("Initial damage: ", initial_damage)
+		# Start first element effect
+		apply_element_effect(current_burn_target)
 
 func apply_element_effect(player_stats):
 	burn_stacks += 1

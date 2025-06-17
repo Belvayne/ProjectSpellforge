@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8yvxqnxqyvnx"]
+[gd_scene load_steps=5 format=3 uid="uid://c8yvxqnxqyvnx"]
 
 [ext_resource type="Script" uid="uid://c83ghohdvfbms" path="res://scripts/enemies/dummy.gd" id="1_yvnqx"]
+[ext_resource type="Script" uid="uid://b4840ejxnhyit" path="res://scripts/enemies/dummy_stats.gd" id="2_stats"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
 
@@ -9,25 +10,32 @@
 [node name="Dummy" type="Node3D"]
 script = ExtResource("1_yvnqx")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
 mesh = SubResource("CapsuleMesh_1")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("CapsuleShape3D_1")
+
+[node name="Area3D" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
 shape = SubResource("CapsuleShape3D_1")
 
 [node name="PlayerStats" type="Node" parent="."]
+script = ExtResource("2_stats")
 
 [node name="HealthLabel" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
-text = "100/100"
+text = "1000000/1000000"
 font_size = 24
 
 [node name="HealthBar" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
 
 [node name="Billboard" type="Sprite3D" parent="HealthBar"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 billboard = 1
 texture_filter = 0

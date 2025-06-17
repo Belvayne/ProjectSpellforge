@@ -21,6 +21,9 @@ var despawn_timer = 0.0
 var direction = Vector3.FORWARD  # Will be set when spawned
 
 func _ready():
+	# Add to projectile group
+	add_to_group("projectile")
+	
 	# Set size dynamically
 	$MeshInstance3D.scale = Vector3(projectile_size, projectile_size, projectile_size)
 	$MeshInstance3D/Area3D/CollisionShape3D.shape.radius = projectile_size
@@ -31,6 +34,7 @@ func _ready():
 	# Connect signals
 	$MeshInstance3D/Area3D.body_entered.connect(_on_area_3d_body_entered)
 	$MeshInstance3D/Area3D.body_exited.connect(_on_area_3d_body_exited)
+	$MeshInstance3D/Area3D.area_entered.connect(_on_area_3d_area_entered)
 
 func set_element(new_element: int) -> void:
 	element = new_element
@@ -61,7 +65,27 @@ func _process(delta):
 	if despawn_timer >= lifetime:
 		queue_free()  # Remove the spell from the scene
 
+func _on_area_3d_area_entered(area):
+	# Destroy the projectile on any collision
+	queue_free()
+	
+	# Check if the area belongs to a player or enemy
+	var parent = area.get_parent()
+	if parent.has_node("PlayerStats") and active:
+		current_burn_target = parent.get_node("PlayerStats")
+		stack_timer = 0.0
+		# Apply initial damage
+		var initial_damage = base_damage * spellpower
+		current_burn_target.take_damage(initial_damage)
+		print("Initial damage: ", initial_damage)
+		# Start first element effect
+		apply_element_effect(current_burn_target)
+
 func _on_area_3d_body_entered(body):
+	# Destroy the projectile on any collision
+	queue_free()
+	
+	# Check if the body has PlayerStats
 	if body.has_node("PlayerStats") and active:
 		current_burn_target = body.get_node("PlayerStats")
 		stack_timer = 0.0
@@ -71,8 +95,6 @@ func _on_area_3d_body_entered(body):
 		print("Initial damage: ", initial_damage)
 		# Start first element effect
 		apply_element_effect(current_burn_target)
-		# Destroy the projectile on hit
-		queue_free()
 
 func _on_area_3d_body_exited(body):
 	if body.has_node("PlayerStats"):
