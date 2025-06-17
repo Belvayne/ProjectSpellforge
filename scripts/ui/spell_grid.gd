@@ -248,7 +248,7 @@ func cast_ground_target_spell():
 	# Start cooldown
 	ground_target_can_cast = false
 	ground_target_cooldown_timer = ground_target_cooldown
-	print("Ground target cooldown started")
+	update_slot_colors()
 
 func cast_projectile_spell():
 	print("Starting projectile spell cast")

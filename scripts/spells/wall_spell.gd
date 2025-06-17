@@ -30,10 +30,32 @@ func _ready():
 	$Area3D.body_entered.connect(_on_area_3d_body_entered)
 	$Area3D.body_exited.connect(_on_area_3d_body_exited)
 	$Area3D.area_entered.connect(_on_area_3d_area_entered)
+	
+	# Add StaticBody3D for ice walls
+	if element == Element.ICE:
+		var static_body = StaticBody3D.new()
+		var collision_shape = CollisionShape3D.new()
+		collision_shape.shape = BoxShape3D.new()
+		collision_shape.shape.extents = wall_size / 2
+		static_body.add_child(collision_shape)
+		add_child(static_body)
 
 func set_element(new_element: int) -> void:
 	element = new_element
 	update_element_visuals()
+	
+	# Add or remove StaticBody3D based on element
+	if element == Element.ICE:
+		if not has_node("StaticBody3D"):
+			var static_body = StaticBody3D.new()
+			var collision_shape = CollisionShape3D.new()
+			collision_shape.shape = BoxShape3D.new()
+			collision_shape.shape.extents = wall_size / 2
+			static_body.add_child(collision_shape)
+			add_child(static_body)
+	else:
+		if has_node("StaticBody3D"):
+			$StaticBody3D.queue_free()
 
 func update_element_visuals() -> void:
 	var material = $MeshInstance3D.mesh.surface_get_material(0).duplicate()
@@ -45,7 +67,7 @@ func update_element_visuals() -> void:
 	$MeshInstance3D.material_override = material
 
 func _process(delta):
-	if current_burn_target and active:
+	if current_burn_target and active and element == Element.FIRE:
 		stack_timer += delta
 		if stack_timer >= stack_time and burn_stacks < max_burn_stacks:
 			apply_element_effect(current_burn_target)
@@ -57,7 +79,7 @@ func _process(delta):
 		queue_free()  # Remove the spell from the scene
 
 func _on_area_3d_body_entered(body):
-	if body.has_node("PlayerStats") and active:
+	if body.has_node("PlayerStats") and active and element == Element.FIRE:
 		current_burn_target = body.get_node("PlayerStats")
 		stack_timer = 0.0
 		# Apply initial damage
@@ -68,7 +90,7 @@ func _on_area_3d_body_entered(body):
 		apply_element_effect(current_burn_target)
 
 func _on_area_3d_body_exited(body):
-	if body.has_node("PlayerStats"):
+	if body.has_node("PlayerStats") and element == Element.FIRE:
 		current_burn_target = null
 		stack_timer = 0.0
 		burn_stacks = 0
@@ -76,7 +98,7 @@ func _on_area_3d_body_exited(body):
 func _on_area_3d_area_entered(area):
 	# Check if the area belongs to a player or enemy
 	var parent = area.get_parent()
-	if parent.has_node("PlayerStats") and active:
+	if parent.has_node("PlayerStats") and active and element == Element.FIRE:
 		current_burn_target = parent.get_node("PlayerStats")
 		stack_timer = 0.0
 		# Apply initial damage

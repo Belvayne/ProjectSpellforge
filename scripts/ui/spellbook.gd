@@ -1,6 +1,6 @@
 extends Control
 
-@onready var spell_grid = get_node("/root/MainScene/HUD/SpellGrid") #Don't change this
+@onready var spell_grid = $SpellGrid
 @onready var fire_button = $VBoxContainer/FireButton
 @onready var ice_button = $VBoxContainer/IceButton
 
@@ -40,18 +40,19 @@ func _input(event):
 			close_spellbook()
 		else:
 			open_spellbook()
+	elif event.is_action_pressed("ui_cancel") and visible:
+		close_spellbook()
+		get_viewport().set_input_as_handled()
 
 func open_spellbook():
 	show()
 	get_tree().paused = true
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	print("Spellbook opened")
 
 func close_spellbook():
 	hide()
 	get_tree().paused = false
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	print("Spellbook closed")
 
 func update_button_states(selected_element: int):
 	# Reset all buttons to normal state
